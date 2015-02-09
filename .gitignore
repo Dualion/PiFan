@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 
+## Directory-based project format:
+.idea/
+
 # C extensions
 *.so
 
@@ -27,6 +30,10 @@ var/
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+
+## File-based project format:
+*.ipr
+*.iws
 
 # Installer logs
 pip-log.txt
