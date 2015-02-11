@@ -1,3 +1,7 @@
+
+# Install
+# python setup.py install --record files.txt
+
 from setuptools import setup, find_packages
 setup(
     name = "microfan-Pi",
