@@ -1,0 +1,39 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          microfanPi
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start daemon at boot time
+# Description:       Enable service provided by daemon.
+### END INIT INFO
+# /etc/init.d/microfanPi
+
+DAEMON=/usr/local/bin/microfanPi
+NAME=microfanPi
+
+test -x $DAEMON || exit 0
+case "$1" in
+	start)
+	echo -n "Starting dynamic address update: "
+	start-stop-daemon --start --exec $DAEMON
+	echo "noip2." 
+	;;
+	stop)
+	echo -n "Shutting down dynamic address update:"
+	start-stop-daemon --stop --oknodo --retry 30 --exec $DAEMON
+	echo "noip2." 
+	;;
+	restart)
+	echo -n "Restarting dynamic address update: "
+	start-stop-daemon --stop --oknodo --retry 30 --exec $DAEMON
+	start-stop-daemon --start --exec $DAEMON
+	echo "microfanPi." 
+	;;
+	*)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+exit 0
