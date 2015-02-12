@@ -18,18 +18,18 @@ test -x $DAEMON || exit 0
 case "$1" in
 	start)
 	echo -n "Starting dynamic address update: "
-	start-stop-daemon --start --exec $DAEMON
-	echo "noip2." 
+	start-stop-daemon --start --exec $DAEMON start
+	echo "microfanPi." 
 	;;
 	stop)
 	echo -n "Shutting down dynamic address update:"
-	start-stop-daemon --stop --oknodo --retry 30 --exec $DAEMON
-	echo "noip2." 
+	start-stop-daemon --start --exec $DAEMON stop
+	echo "microfanPi." 
 	;;
 	restart)
 	echo -n "Restarting dynamic address update: "
-	start-stop-daemon --stop --oknodo --retry 30 --exec $DAEMON
-	start-stop-daemon --start --exec $DAEMON
+	start-stop-daemon --start --exec $DAEMON stop
+	start-stop-daemon --start --exec $DAEMON start
 	echo "microfanPi." 
 	;;
 	*)
