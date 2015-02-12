@@ -56,7 +56,7 @@ class MyFan(Daemon):
     def fan_off(self):
         GPIO.output(FAN_PIN, GPIO.LOW)
 
-if __name__ == "__main__":
+def fan():
     daemon = MyFan('/var/run/microfanPi.pid')
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
@@ -72,3 +72,6 @@ if __name__ == "__main__":
     else:
         print "Usage: %s start|stop|restart" % sys.argv[0]
         sys.exit(2)
+
+if __name__ == '__main__':
+    fan()
