@@ -26,3 +26,9 @@ To **restart** the daemon, we should run the next command:
 microfanPi restart
 ```
 
+To start microfanPi automatically on Boot:
+```
+$ cp ./script/microfanPi /etc/init.d/microfanPi
+$ chmod a+rx /etc/init.d/microfanPi
+$ insserv microfanPi
+```
