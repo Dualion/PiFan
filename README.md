@@ -1,17 +1,28 @@
 # MicroFan-Pi
 Daemon that control microfan for **Raspberry Pi**.
 
+# Install
+```
+python setup.py install
+```
+
+# Uninstall
+```
+pip uninstall microfanPi
+```
+
 To **start** the daemon, we should run the next command:
 ```
-python microfanPi.py start
+microfanPi start
 ```
 
 To **stop** the daemon, we should run the next command:
 ```
-python microfanPi.py stop
+microfanPi stop
 ```
 
 To **restart** the daemon, we should run the next command:
 ```
-python microfanPi.py restart
+microfanPi restart
 ```
+
