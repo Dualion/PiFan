@@ -28,6 +28,7 @@ setup(
     author_email="admin@dualion.com",
     url="http://dualion.com/",
     packages=['microfanPi'],
+    include_package_data=True,
     exclude_package_data={'': ['.gitignore', 'README.md', 'LICENSE']},
     install_requires=[],
     long_description=long_description,

@@ -10,10 +10,8 @@ from signal import SIGTERM
 class Daemon(object):
     """
     A generic daemon class.
-
     Usage: subclass the Daemon class and override the run() method
     """
-
     def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
         self.stdin = stdin
         self.stdout = stdout
@@ -28,7 +26,6 @@ class Daemon(object):
         """
         try:
             pid = os.fork()
-            # print "PID: " + str(pid)
             if pid > 0:
                 # exit first parent
                 sys.exit(0)
@@ -37,7 +34,8 @@ class Daemon(object):
             sys.exit(1)
 
         # decouple from parent environment
-        os.chdir("/")
+        print "PID: " + str(pid)
+        os.chdir("/")   # The method chdir() changes the current working directory to the given path.
         os.setsid()
         os.umask(0)
 
