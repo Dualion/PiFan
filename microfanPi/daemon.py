@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
-import sys, os, time, atexit
+import sys
+import os
+import time
+import atexit
 from signal import SIGTERM
 
 
-class Daemon:
+class Daemon(object):
     """
     A generic daemon class.
 
@@ -25,6 +28,7 @@ class Daemon:
         """
         try:
             pid = os.fork()
+            # print "PID: " + str(pid)
             if pid > 0:
                 # exit first parent
                 sys.exit(0)
@@ -57,6 +61,7 @@ class Daemon:
         os.dup2(se.fileno(), sys.stderr.fileno())
 
         # write pidfile
+        print "PID: " + str(pid)
         atexit.register(self.delpid)
         pid = str(os.getpid())
         file(self.pidfile, 'w+').write("%s\n" % pid)
@@ -124,7 +129,7 @@ class Daemon:
         self.stop()
         self.start()
 
-    def run(self):
+    def run(self, **kwargs):
         """
         You should override this method when you subclass Daemon. It will be called after the process has been
         daemonized by start() or restart().

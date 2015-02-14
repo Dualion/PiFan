@@ -13,8 +13,7 @@ class CustomInstallCommand(install):
     def run(self):
         print "Dualion Power!"
         install.run(self)
-        #post-processing code
-		
+        # post-processing code
 
 try:
     long_description = open("README.md").read()
@@ -26,11 +25,10 @@ setup(
     version="0.1.0",
     description="Software to control fan",
     author="Dualion",
-    author_email = "admin@dualion.com",
-    url = "http://dualion.com/",
-	
+    author_email="admin@dualion.com",
+    url="http://dualion.com/",
     packages=['microfanPi'],
-    exclude_package_data = { '': ['.gitignore','README.md','LICENSE'] },
+    exclude_package_data={'': ['.gitignore', 'README.md', 'LICENSE']},
     install_requires=[],
     long_description=long_description,
     entry_points={
