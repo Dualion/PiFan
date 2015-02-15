@@ -16,20 +16,19 @@ import time
 import os
 import RPi.GPIO as GPIO
 from daemon import Daemon
+import ConfigParser
 
+config = ConfigParser.SafeConfigParser()
 GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
 
-# FAN
-fan_pin = 11    # Set GPIO pin the fan are connected to
-fan_on = 31   # Set Temperature the fan put on
-fan_off = 30  # Set Temperature the fan put off
-check_temp_interval = 10  # Set interval the fan verify temperature (in sec)
+config.read('pifan.conf')
+fan_pin = int(config.get('Fan', 'fan_pin'))
+fan_on = float(config.get('Fan', 'fan_on'))
+fan_off = float(config.get('Fan', 'fan_off'))
+check_temp_interval = int(config.get('Fan', 'check_temp_interval'))
+temp_file = str(config.get('Fan', 'temp_file'))
 
-# Temperature
-temp_file = 'cat /sys/class/thermal/thermal_zone0/temp'
-
-# Set the fan pin as output pins
 GPIO.setup(fan_pin, GPIO.OUT)
 
 
@@ -58,20 +57,3 @@ class PiFan(Daemon):
     @classmethod
     def turn_fan_off(cls):
         GPIO.output(fan_pin, GPIO.LOW)
-
-if __name__ == "__main__":
-    daemon = PiFan('/var/run/microfanPi.pid')
-    if len(sys.argv) == 2:
-        if 'start' == sys.argv[1]:
-            daemon.start()
-        elif 'stop' == sys.argv[1]:
-            daemon.stop()
-        elif 'restart' == sys.argv[1]:
-            daemon.restart()
-        else:
-            print "Unknown command"
-            sys.exit(2)
-        sys.exit(0)
-    else:
-        print "Usage: %s start|stop|restart" % sys.argv[0]
-        sys.exit(2)

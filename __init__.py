@@ -11,19 +11,10 @@ python microfanPi.py restart
 
 import sys
 import pifan
-import ConfigParser
-
-config = ConfigParser.SafeConfigParser()
 
 
 def fan():
-    config.read('pifan.conf')
-    fan_pin = config.get('Fan', 'fan_pin')
-    fan_on = config.get('Fan', 'fan_on')
-    fan_off = config.get('Fan', 'fan_off')
-    check_temp_interval = config.get('Fan', 'check_temp_interval')
-    temp_file = config.get('Fan', 'temp_file')
-    daemon = pifan.PiFan('/var/run/microfanPi.pid', fan_pin, fan_on, fan_off, check_temp_interval, temp_file)
+    daemon = pifan.PiFan('/var/run/microfanPi.pid')
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
             daemon.start()
