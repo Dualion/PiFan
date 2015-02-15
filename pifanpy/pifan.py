@@ -22,7 +22,7 @@ config = ConfigParser.SafeConfigParser()
 GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
 
-config.read('pifan.conf')
+config.read('/usr/local/lib/python2.7/dist-packages/PiFan-0.1.0-py2.7.egg/pifanpy/pifan.conf')
 fan_pin = int(config.get('Fan', 'fan_pin'))
 fan_on = float(config.get('Fan', 'fan_on'))
 fan_off = float(config.get('Fan', 'fan_off'))

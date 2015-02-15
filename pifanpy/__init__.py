@@ -14,7 +14,7 @@ import pifan
 
 
 def fan():
-    daemon = pifan.PiFan('/var/run/microfanPi.pid')
+    daemon = pifan.PiFan('/var/run/pifan.pid')
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
             daemon.start()
