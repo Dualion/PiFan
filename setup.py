@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from setuptools import setup, find_packages
 from setuptools.command.install import install
 import sys
@@ -25,6 +28,10 @@ try:
     if not os.path.exists("/etc/pifan"):
         os.makedirs("/etc/pifan")
         os.rename("pifanpy/pifan.conf", "/etc/pifan/pifan.conf")
+    if not os.path.exists("/var/log/pifan"):
+        os.makedirs("/var/log/pifan")
+        with open("/var/log/pifan/pifan.log", "wb") as pifan_log:
+            pifan_log.write("This is PiFan Log file: " + "\n")
 except:
     print "Config file not created"
 

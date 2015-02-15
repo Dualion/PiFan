@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
 To start the daemon, we should run the next command:
@@ -13,6 +14,7 @@ python microfanPi.py restart
 
 import sys
 import time
+from datetime import datetime
 import os
 import RPi.GPIO as GPIO
 from daemon import Daemon
@@ -46,8 +48,12 @@ class PiFan(Daemon):
 
             if temp <= fan_off:
                 # Stop fan, it's cold!!
+                with open("/var/log/pifan/pifan.log", "ab") as pifan_log:
+                    pifan_log.write(str(datetime.now()) + ": Apagando ventilador, temepratura=" + str(temp) + "ºC")
                 GPIO.output(fan_pin, GPIO.LOW)
             if temp >= fan_on:
+                with open("/var/log/pifan/pifan.log", "ab") as pifan_log:
+                    pifan_log.write(str(datetime.now()) + ": Encendiendo ventilador, temepratura=" + str(temp) + "ºC")
                 # We have warmed up enough, turn the fan on
                 GPIO.output(fan_pin, GPIO.HIGH)
 
