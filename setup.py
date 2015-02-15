@@ -1,5 +1,7 @@
 from setuptools import setup, find_packages
 from setuptools.command.install import install
+import sys
+import os
 
 # Install
 # python setup.py install --record files.txt
@@ -18,6 +20,14 @@ try:
     long_description = open("README.md").read()
 except IOError:
     long_description = ""
+
+try:
+    if not os.path.exists("/etc/pifan"):
+        os.makedirs("/etc/pifan")
+        os.rename("pifanpy/pifan.conf", "/etc/pifan/pifan.conf")
+except:
+    print "Config file not created"
+
 
 setup(
     name="PiFan",
