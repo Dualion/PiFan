@@ -1,16 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys, os, pwd, grp
+import sys
+import os
+import pwd
+import grp
 import signal
+
 
 class Daemon:
     """
     A generic daemon class.
     Usage: subclass the Daemon class and override the run() method
     """
-
-    def __init__(self, pidfile, stdin='/dev/null', stdout='/var/log/pifan/pifan.log', stderr='/dev/null', user=None, group=None):
+    def __init__(self, pidfile, stdout, stderr, stdin='/dev/null', user=None, group=None):
         self.stdin = stdin
         self.stdout = stdout
         self.stderr = stderr
@@ -23,6 +26,10 @@ class Daemon:
         Open the standard file descriptors stdin, stdout and stderr as specified
         in the constructor.
         """
+        try:
+            os.mkdir("/var/log/pifan/")
+        except OSError:
+            pass
         si = open(self.stdin, "r")
         so = open(self.stdout, "a+")
         se = open(self.stderr, "a+", 0)
@@ -44,7 +51,6 @@ class Daemon:
         sys.exit(0)
 
     def switchuser(self, user, group):
-
         if group is not None:
             if isinstance(group, basestring):
                 group = grp.getgrnam(group).gr_gid
@@ -127,7 +133,7 @@ class Daemon:
 
         # Start the daemon
         self.daemonize()
-        sys.stderr.write("To Run")
+        sys.stderr.write("To Run\n")
         self.run()
 
     def stop(self):
@@ -146,6 +152,13 @@ class Daemon:
         except ValueError:
             sys.exit("mangled pidfile %s: %r" % (self.pidfile, data))
         os.kill(pid, signal.SIGTERM)
+
+    def restart(self):
+        """
+        Restart the daemon
+        """
+        self.stop()
+        self.start()
 
     def run(self):
         """

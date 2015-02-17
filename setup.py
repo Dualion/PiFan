@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
-from setuptools.command.install import install
 import sys
 import os
 
@@ -12,29 +11,10 @@ import os
 # Uninstall
 # pip uninstall PiFan
 
-
-class CustomInstallCommand(install):
-    """Customized setuptools install command - prints a friendly greeting."""
-    def run(self):
-        print "Dualion Power!"
-        install.run(self)
-        # post-processing code
 try:
     long_description = open("README.md").read()
 except IOError:
     long_description = ""
-
-try:
-    if not os.path.exists("/etc/pifan"):
-        os.makedirs("/etc/pifan")
-        os.rename("pifanpy/pifan.conf", "/etc/pifan/pifan.conf")
-    if not os.path.exists("/var/log/pifan"):
-        os.makedirs("/var/log/pifan")
-        with open("/var/log/pifan/pifan.log", "wb") as pifan_log:
-            pifan_log.write("This is PiFan Log file: " + "\n")
-except:
-    print "Config file not created"
-
 
 setup(
     name="PiFan",
@@ -45,6 +25,7 @@ setup(
     url="http://dualion.com/",
     packages=['pifanpy'],
     include_package_data=True,
+    data_files=[('/etc/pifan', ['pifanpy/pifan.conf']), ('/etc/init.d', ['script/pifan'])],
     exclude_package_data={'': ['.gitignore', 'README.md', 'LICENSE']},
     install_requires=[],
     long_description=long_description,
