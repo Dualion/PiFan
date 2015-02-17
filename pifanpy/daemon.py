@@ -13,7 +13,7 @@ class Daemon:
     A generic daemon class.
     Usage: subclass the Daemon class and override the run() method
     """
-    def __init__(self, pidfile, stdout, stderr, stdin='/dev/null', user=None, group=None):
+    def __init__(self, pidfile, stdout='/dev/null', stderr='/dev/null', stdin='/dev/null', user=None, group=None):
         self.stdin = stdin
         self.stdout = stdout
         self.stderr = stderr
@@ -26,10 +26,12 @@ class Daemon:
         Open the standard file descriptors stdin, stdout and stderr as specified
         in the constructor.
         """
-        try:
-            os.mkdir("/var/log/pifan/")
-        except OSError:
-            pass
+        if self.stdout != "/dev/null" and not os.path.exists(os.path.dirname(self.stdout)):
+            os.mkdir(os.path.dirname(self.stdout))
+        if self.stderr != "/dev/null" and not os.path.exists(os.path.dirname(self.stderr)):
+            os.mkdir(os.path.dirname(self.stderr))
+        if self.stdin != "/dev/null" and not os.path.exists(os.path.dirname(self.stdin)):
+            os.mkdir(os.path.dirname(self.stdin))
         si = open(self.stdin, "r")
         so = open(self.stdout, "a+")
         se = open(self.stderr, "a+", 0)
