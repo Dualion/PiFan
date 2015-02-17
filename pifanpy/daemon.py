@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys
-import os
-import time
-import atexit
-from signal import SIGTERM
 
+import sys, os, pwd, grp
+import signal
 
 class Daemon:
     """
@@ -13,18 +10,62 @@ class Daemon:
     Usage: subclass the Daemon class and override the run() method
     """
 
-    def __init__(self, pidfile, stdin='/dev/null', stdout='/var/log/pifan/pifan.log', stderr='/dev/null'):
+    def __init__(self, pidfile, stdin='/dev/null', stdout='/var/log/pifan/pifan.log', stderr='/dev/null', user=None, group=None):
         self.stdin = stdin
         self.stdout = stdout
         self.stderr = stderr
         self.pidfile = pidfile
+        self.user = user
+        self.group = group
 
+    def openstreams(self):
+        """
+        Open the standard file descriptors stdin, stdout and stderr as specified
+        in the constructor.
+        """
+        si = open(self.stdin, "r")
+        so = open(self.stdout, "a+")
+        se = open(self.stderr, "a+", 0)
+        os.dup2(si.fileno(), sys.stdin.fileno())
+        os.dup2(so.fileno(), sys.stdout.fileno())
+        os.dup2(se.fileno(), sys.stderr.fileno())
+    
+    def handlesighup(self, signum, frame):
+        self.openstreams()
+
+    def handlesigterm(self, signum, frame):
+        if self.pidfile is not None:
+            try:
+                os.remove(self.pidfile)
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except Exception:
+                pass
+        sys.exit(0)
+
+    def switchuser(self, user, group):
+
+        if group is not None:
+            if isinstance(group, basestring):
+                group = grp.getgrnam(group).gr_gid
+            os.setegid(group)
+        if user is not None:
+            if isinstance(user, basestring):
+                user = pwd.getpwnam(user).pw_uid
+            os.seteuid(user)
+            if "HOME" in os.environ:
+                os.environ["HOME"] = pwd.getpwuid(user).pw_dir
+    
     def daemonize(self):
         """
         do the UNIX double-fork magic, see Stevens' "Advanced
         Programming in the UNIX Environment" for details (ISBN 0201563177)
-        http://www.erlenstar.demon.co.uk/unix/faq_2.html#SEC16
         """
+        
+        # Finish up with the current stdout/stderr
+        sys.stdout.flush()
+        sys.stderr.flush()
+        
         try:
             pid = os.fork()
             if pid > 0:
@@ -48,23 +89,24 @@ class Daemon:
         except OSError, e:
             sys.stderr.write("fork #2 failed: %d (%s)\n" % (e.errno, e.strerror))
             sys.exit(1)
-        # redirect standard file descriptors
-        sys.stdout.flush()
-        sys.stderr.flush()
-        si = file(self.stdin, 'r')
-        so = file(self.stdout, 'a+')
-        se = file(self.stderr, 'a+', 0)
-        os.dup2(si.fileno(), sys.stdin.fileno())
-        os.dup2(so.fileno(), sys.stdout.fileno())
-        os.dup2(se.fileno(), sys.stderr.fileno())
+        
+        # Now I am a daemon!
+    
+        # Switch user
+        self.switchuser(self.user, self.group)
 
-        # write pidfile
-        atexit.register(self.delpid)
-        pid = str(os.getpid())
-        file(self.pidfile, 'w+').write("%s\n" % pid)
+        # Redirect standard file descriptors
+        self.openstreams()
 
-    def delpid(self):
-        os.remove(self.pidfile)
+        # Write pid file
+        if self.pidfile is not None:
+            open(self.pidfile, "wb").write(str(os.getpid()))
+
+        # Reopen file descriptions on SIGHUP
+        signal.signal(signal.SIGHUP, self.handlesighup)
+
+        # Remove pid file and exit on SIGTERM
+        signal.signal(signal.SIGTERM, self.handlesigterm)
 
     def start(self):
         """
@@ -92,39 +134,18 @@ class Daemon:
         """
         Stop the daemon
         """
-        # Get the pid from the pidfile
+        if self.pidfile is None:
+            sys.exit("no pidfile specified")
         try:
-            pf = file(self.pidfile, 'r')
-            pid = int(pf.read().strip())
-            pf.close()
-        except IOError:
-            pid = None
-
-        if not pid:
-            message = "pidfile %s does not exist. Daemon not running?\n"
-            sys.stderr.write(message % self.pidfile)
-            return  # not an error in a restart
-
-        # Try killing the daemon process
+            pidfile = open(self.pidfile, "rb")
+        except IOError, exc:
+            sys.exit("can't open pidfile %s: %s" % (self.pidfile, str(exc)))
+        data = pidfile.read()
         try:
-            while 1:
-                os.kill(pid, SIGTERM)
-                time.sleep(0.1)
-        except OSError, err:
-            err = str(err)
-            if err.find("No such process") > 0:
-                if os.path.exists(self.pidfile):
-                    os.remove(self.pidfile)
-            else:
-                print str(err)
-                sys.exit(1)
-
-    def restart(self):
-        """
-        Restart the daemon
-        """
-        self.stop()
-        self.start()
+            pid = int(data)
+        except ValueError:
+            sys.exit("mangled pidfile %s: %r" % (self.pidfile, data))
+        os.kill(pid, signal.SIGTERM)
 
     def run(self):
         """

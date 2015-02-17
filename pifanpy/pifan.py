@@ -21,8 +21,6 @@ from daemon import Daemon
 import ConfigParser
 
 config = ConfigParser.SafeConfigParser()
-GPIO.setmode(GPIO.BOARD)
-GPIO.setwarnings(False)
 
 config.read('/etc/pifan/pifan.conf')
 fan_pin = int(config.get('Fan', 'fan_pin'))
@@ -31,6 +29,8 @@ fan_off = float(config.get('Fan', 'fan_off'))
 check_temp_interval = int(config.get('Fan', 'check_temp_interval'))
 temp_file = str(config.get('Fan', 'temp_file'))
 
+GPIO.setmode(GPIO.BOARD)
+GPIO.setwarnings(False)
 GPIO.setup(fan_pin, GPIO.OUT)
 
 
@@ -40,24 +40,25 @@ class PiFan(Daemon):
         sys.stderr.write("In Run")
         sys.stdout.flush()
         sys.stderr.flush()
-
         while True:
             f_sensor = os.popen(temp_file)
             temp = float(f_sensor.read()) * 0.001
             f_sensor.close()
-
-            if temp <= fan_off:
+            if temp <= fan_off and GPIO.input(fan_pin) == GPIO.HIGH:
                 # Stop fan, it's cold!!
-                with open("/var/log/pifan/pifan.log", "ab") as pifan_log:
-                    pifan_log.write(str(datetime.now()) + ": Apagando ventilador, temepratura=" + str(temp) + "ºC")
                 GPIO.output(fan_pin, GPIO.LOW)
-            if temp >= fan_on:
-                with open("/var/log/pifan/pifan.log", "ab") as pifan_log:
-                    pifan_log.write(str(datetime.now()) + ": Encendiendo ventilador, temepratura=" + str(temp) + "ºC")
+                self.pifan_log(str(datetime.now().strftime('%d/%m/%Y %H:%M:%S')) + ": Apagando ventilador, temepratura=" + str(temp) + "ºC")
+            if temp >= fan_on and GPIO.input(fan_pin) == GPIO.LOW:
                 # We have warmed up enough, turn the fan on
                 GPIO.output(fan_pin, GPIO.HIGH)
+                self.pifan_log(str(datetime.now().strftime('%d/%m/%Y %H:%M:%S')) + ": Encendiendo ventilador, temepratura=" + str(temp) + "ºC")
 
             time.sleep(check_temp_interval)
+
+    @classmethod
+    def pifan_log(cls, log_string):
+        sys.stdout.write("%s\n" % log_string) # write it to console --> so in the log file in /var/log/pifan/pifan.log
+        sys.stdout.flush()
 
     # Function to set all drives off
     @classmethod

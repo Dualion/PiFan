@@ -15,7 +15,7 @@ import pifan
 
 
 def fan():
-    daemon = pifan.PiFan('/var/run/pifan.pid')
+    daemon = pifan.PiFan(pidfile='/var/run/pifan.pid', stdout='/var/log/pifan/pifan.log', stderr='/var/log/pifan/pifan-err.log')
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
             daemon.start()

@@ -10,7 +10,7 @@ import os
 # python setup.py install --record files.txt
 
 # Uninstall
-# pip uninstall microfanPi
+# pip uninstall PiFan
 
 
 class CustomInstallCommand(install):
