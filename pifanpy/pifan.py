@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """
 To start the daemon, we should run the next command:
 python microfanPi.py start
@@ -37,7 +36,7 @@ GPIO.setup(fan_pin, GPIO.OUT)
 class PiFan(Daemon):
     def run(self):
         self.turn_fan_off()
-        sys.stderr.write("In Run")
+        sys.stderr.write("In Run\n")
         sys.stdout.flush()
         sys.stderr.flush()
         while True:
@@ -57,7 +56,7 @@ class PiFan(Daemon):
 
     @classmethod
     def pifan_log(cls, log_string):
-        sys.stdout.write("%s\n" % log_string) # write it to console --> so in the log file in /var/log/pifan/pifan.log
+        sys.stdout.write("%s\n" % log_string)  # write it to console --> so in the log file in /var/log/pifan/pifan.log
         sys.stdout.flush()
 
     # Function to set all drives off

@@ -52,7 +52,8 @@ class Daemon:
                 pass
         sys.exit(0)
 
-    def switchuser(self, user, group):
+    @classmethod
+    def switchuser(cls, user, group):
         if group is not None:
             if isinstance(group, basestring):
                 group = grp.getgrnam(group).gr_gid
@@ -69,11 +70,9 @@ class Daemon:
         do the UNIX double-fork magic, see Stevens' "Advanced
         Programming in the UNIX Environment" for details (ISBN 0201563177)
         """
-        
         # Finish up with the current stdout/stderr
         sys.stdout.flush()
         sys.stderr.flush()
-        
         try:
             pid = os.fork()
             if pid > 0:
@@ -99,7 +98,6 @@ class Daemon:
             sys.exit(1)
         
         # Now I am a daemon!
-    
         # Switch user
         self.switchuser(self.user, self.group)
 
@@ -143,16 +141,16 @@ class Daemon:
         Stop the daemon
         """
         if self.pidfile is None:
-            sys.exit("no pidfile specified")
+            sys.exit("No pidfile specified")
         try:
             pidfile = open(self.pidfile, "rb")
         except IOError, exc:
-            sys.exit("can't open pidfile %s: %s" % (self.pidfile, str(exc)))
+            sys.exit("Can't open pidfile %s: %s" % (self.pidfile, str(exc)))
         data = pidfile.read()
         try:
             pid = int(data)
         except ValueError:
-            sys.exit("mangled pidfile %s: %r" % (self.pidfile, data))
+            sys.exit("Mangled pidfile %s: %r" % (self.pidfile, data))
         os.kill(pid, signal.SIGTERM)
 
     def restart(self):
